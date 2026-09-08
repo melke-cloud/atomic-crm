@@ -1,36 +1,23 @@
 import { CRM } from "@/components/atomic-crm/root/CRM";
+import {
+  authProvider,
+  dataProvider,
+} from "@/components/atomic-crm/providers/fakerest";
+import { memoryStore } from "ra-core";
 
 /**
- * Application entry point
+ * Temporary public test mode for Melchi.
  *
- * Customize Atomic CRM by passing props to the CRM component:
- *  - companySectors
- *  - darkTheme
- *  - dealCategories
- *  - dealPipelineStatuses
- *  - dealStages
- *  - lightTheme
- *  - darkModeLogo / lightModeLogo
- *  - noteStatuses
- *  - taskTypes
- *  - title
- * ... as well as all the props accepted by shadcn-admin-kit's <Admin> component.
- *
- * Logos must be an imported asset, an absolute URL, or a data URI — never a
- * route-relative path like "./img/logo.png", which breaks on nested routes.
- *
- * @example
- * import logoDark from "./logo-dark.svg";
- * import logoLight from "./logo-light.svg";
- *
- * const App = () => (
- *    <CRM
- *       darkModeLogo={logoDark}
- *       lightModeLogo={logoLight}
- *       title="Acme CRM"
- *    />
- * );
+ * Uses Atomic CRM's built-in FakeRest providers so the application can be
+ * opened and exercised without Supabase authentication while the production
+ * Supabase wiring is being finalized.
  */
-const App = () => <CRM />;
+const App = () => (
+  <CRM
+    dataProvider={dataProvider}
+    authProvider={authProvider}
+    store={memoryStore()}
+  />
+);
 
 export default App;
