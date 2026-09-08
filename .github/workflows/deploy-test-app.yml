@@ -1,0 +1,51 @@
+name: Deploy Atomic CRM test app
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: atomic-crm-test-app
+  cancel-in-progress: true
+
+jobs:
+  deploy-test-app:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build login-free test app
+        run: npm run build:demo
+
+      - name: Publish under GitHub Pages test-app path
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          rm -rf /tmp/atomic-pages
+          git clone --depth 1 --branch gh-pages "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" /tmp/atomic-pages
+          rm -rf /tmp/atomic-pages/test-app
+          mkdir -p /tmp/atomic-pages/test-app
+          cp -R dist/. /tmp/atomic-pages/test-app/
+          cd /tmp/atomic-pages
+          git config user.email "support+actions@github.com"
+          git config user.name "github-actions-bot"
+          git add test-app
+          git commit -m "Deploy Atomic CRM test app" || exit 0
+          git push origin gh-pages
